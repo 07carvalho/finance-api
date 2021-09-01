@@ -12,3 +12,8 @@ run/migrate:
 
 run/django:
 	python server/manage.py runserver 0.0.0.0:8000
+
+run/tests:
+	poetry run pytest -x server/
+
+ci: copy/local/envs run/tests

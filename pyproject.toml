@@ -14,9 +14,17 @@ multi_line_output = 3
 include_trailing_comma = true
 use_parentheses = true
 force_grid_wrap = 0
-known_local_folder = "finances"
+known_local_folder = "authy"
 sections = "FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 default_section = "THIRDPARTY"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "finance.settings"
+addopts = "-v -x --cov=authy --cov-report=term-missing --ignore=stocks"
+testpaths = [
+    "authy",
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -25,6 +33,7 @@ djangorestframework = "^3.12.4"
 prettyconf = "^2.2.1"
 django-cors-headers = "^3.8.0"
 drf-yasg = "^1.20.0"
+factory-boy = "^3.2.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
