@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "drf_yasg",
     "rest_framework",
+    "rest_framework.authtoken",
     "corsheaders",
+    "authy",
 ]
 
 REST_FRAMEWORK = {
