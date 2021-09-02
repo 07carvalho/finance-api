@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "accounts",
     "authy",
+    "categories",
 ]
 
 REST_FRAMEWORK = {
