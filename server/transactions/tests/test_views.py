@@ -40,6 +40,80 @@ class TransactionTestCase(APITestCase):
             response.json()["count"], Transaction.objects.filter(user=self.user).count()
         )
 
+    def test_search_transaction(self):
+        url = reverse("transactions-list")
+        TransactionFactory(
+            user=self.user,
+            account=self.account,
+            category=self.category,
+            description="Dinner",
+        )
+        TransactionFactory(
+            user=self.user,
+            account=self.account,
+            category=self.category,
+            description="Bonus",
+        )
+        TransactionFactory(
+            user=self.user,
+            account=self.account,
+            category=self.category,
+            description="Bonus",
+        )
+
+        response = self.client.get(url + "?search=bonus", format="json", **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 2)
+
+    def test_filter_transaction_by_type(self):
+        url = reverse("transactions-list")
+        TransactionFactory(
+            user=self.user, account=self.account, category=self.category, type="ex"
+        )
+        TransactionFactory(
+            user=self.user, account=self.account, category=self.category, type="ex"
+        )
+        TransactionFactory(
+            user=self.user, account=self.account, category=self.category, type="in"
+        )
+
+        response = self.client.get(url + "?type=ex", format="json", **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 2)
+
+    def test_search_and_filter_transaction(self):
+        url = reverse("transactions-list")
+        TransactionFactory(
+            user=self.user,
+            account=self.account,
+            category=self.category,
+            description="Lunch",
+            type="ex",
+        )
+        TransactionFactory(
+            user=self.user,
+            account=self.account,
+            category=self.category,
+            description="Salary",
+            type="ex",
+        )
+        TransactionFactory(
+            user=self.user,
+            account=self.account,
+            category=self.category,
+            description="Market",
+            type="ex",
+        )
+
+        response = self.client.get(
+            url + "?search=Mark&type=ex", format="json", **self.header
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 1)
+
     @parameterized.expand(
         [
             ("ex", 23.45, "Lunch"),

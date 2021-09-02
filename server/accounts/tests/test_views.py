@@ -27,6 +27,41 @@ class AccountTestCase(APITestCase):
             response.json()["count"], Account.objects.filter(user=self.user).count()
         )
 
+    def test_search_account(self):
+        url = reverse("accounts-list")
+        AccountFactory(user=self.user, name="Personal Account")
+        AccountFactory(user=self.user, name="Family Account")
+        AccountFactory(user=self.user, name="Savings Account")
+
+        response = self.client.get(url + "?search=family", format="json", **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 1)
+
+    def test_filter_account_by_type(self):
+        url = reverse("accounts-list")
+        AccountFactory(user=self.user, type="cash")
+        AccountFactory(user=self.user, type="cash")
+        AccountFactory(user=self.user)
+
+        response = self.client.get(url + "?type=cash", format="json", **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 2)
+
+    def test_search_and_filter_account_by_type(self):
+        url = reverse("accounts-list")
+        AccountFactory(user=self.user, name="Personal Account", type="cash")
+        AccountFactory(user=self.user, name="Family Account", type="cash")
+        AccountFactory(user=self.user, name="Savings Account")
+
+        response = self.client.get(
+            url + "?type=cash&search=Savings", format="json", **self.header
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 0)
+
     def test_create_account(self):
         url = reverse("accounts-list")
         payload = {

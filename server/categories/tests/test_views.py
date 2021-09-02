@@ -26,6 +26,28 @@ class CategoryTestCase(APITestCase):
             response.json()["count"], Category.objects.filter(user=self.user).count()
         )
 
+    def test_search_category(self):
+        url = reverse("categories-list")
+        CategoryFactory(user=self.user, name="Food")
+        CategoryFactory(user=self.user, name="Academy")
+        CategoryFactory(user=self.user, name="Health")
+
+        response = self.client.get(url + "?search=food", format="json", **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 1)
+
+    def test_search_category_does_not_exists(self):
+        url = reverse("categories-list")
+        CategoryFactory(user=self.user, name="Food")
+        CategoryFactory(user=self.user, name="Academy")
+        CategoryFactory(user=self.user, name="Food")
+
+        response = self.client.get(url + "?search=health", format="json", **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 0)
+
     def test_create_category(self):
         url = reverse("categories-list")
         payload = {
