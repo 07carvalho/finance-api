@@ -8,4 +8,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        exclude = ["user"]
+        exclude = [
+            "user",
+            "deleted_at",
+        ]
