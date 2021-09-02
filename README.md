@@ -1,6 +1,12 @@
 # finance-api
 A personal finance REST API. This application is able to manage accounts, categories and transactions to register personal finances.
 
+## Functionalities
+* Sign Up, Login and Logout
+* Account: create, retrieve, update, list and delete;
+* Category: create, retrieve, update, list and delete;
+* Transaction: create, retrieve, update, list and delete;
+
 ## Tech Stack Used
 * Python 3.8.6
 * Django 3.2.5
