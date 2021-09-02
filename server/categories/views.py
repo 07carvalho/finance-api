@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import filters, viewsets
 from rest_framework.authentication import TokenAuthentication
 
 from accounts.permissions import IsOwner
@@ -10,6 +10,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsOwner]
     serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
 
     def get_queryset(self):
         return Category.objects.filter(
