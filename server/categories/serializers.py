@@ -6,4 +6,7 @@ from categories.models import Category
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        exclude = ["user"]
+        exclude = [
+            "user",
+            "deleted_at",
+        ]
