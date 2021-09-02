@@ -95,3 +95,9 @@ class Account(BaseModel):
         transaction_adapter[transaction_type](old_value, new_value)
         self.last_update = datetime.now()
         self.save()
+
+    def delete(self, *args, **kwargs):
+        self.is_active = False
+        self.last_update = datetime.now()
+        self.deleted_at = datetime.now()
+        super().save(*args, **kwargs)
