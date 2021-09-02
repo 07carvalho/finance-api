@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
-from factory import Sequence
+from django.utils.crypto import get_random_string
+from factory import Sequence, SubFactory
 from factory.django import DjangoModelFactory
+from rest_framework.authtoken.models import Token
 
 
 class UserFactory(DjangoModelFactory):
@@ -21,3 +23,11 @@ class UserFactory(DjangoModelFactory):
             user = manager.create_user(*args, **kwargs)
         user.raw_password = cls.password
         return user
+
+
+class TokenFactory(DjangoModelFactory):
+    class Meta:
+        model = Token
+
+    user = SubFactory(UserFactory)
+    key = get_random_string(length=12)

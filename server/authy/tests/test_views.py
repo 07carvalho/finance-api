@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from authy.tests.factories import UserFactory
 
 
-class SignupTestCase(APITestCase):
+class SignUpTestCase(APITestCase):
     def setUp(self) -> None:
         self.payload = {
             "email": "tests@mail.com",
@@ -94,3 +95,29 @@ class LoginTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertIn("error", response.json())
         self.assertEqual(response.json()["error"], "Email or password wrong.")
+
+
+class LogoutTestCase(APITestCase):
+    def setUp(self):
+        self.url = reverse("logout")
+        self.user = UserFactory.create()
+        self.payload = {
+            "email": self.user.email,
+            "password": UserFactory.password,
+        }
+        url = reverse("login")
+        response = self.client.post(url, self.payload, format="json")
+        token = response.json()["token"]
+        self.header = {"HTTP_AUTHORIZATION": f"Token {token}"}
+
+    def test_logout(self):
+        response = self.client.post(self.url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+    def test_logout_without_header(self):
+        response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 1)
