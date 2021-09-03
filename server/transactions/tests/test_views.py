@@ -217,6 +217,51 @@ class TransactionTestCase(APITestCase):
             str(account.balance), "{:.2f}".format(self.account.balance + second_value)
         )
 
+    def test_create_and_update_transaction_with_different_type(self):
+        create_url = reverse("transactions-list")
+        first_value = 5000
+        second_value = 6000
+        payload = {
+            "account": self.account.id,
+            "type": "in",
+            "description": "Salary",
+            "value": first_value,
+            "date": "2021-08-31",
+            "category": self.category.id,
+        }
+
+        response = self.client.post(create_url, data=payload, format="json", **self.header)
+        account = Account.objects.get(user=self.user)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["description"], "Salary")
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 2)
+        self.assertEqual(
+            str(account.income), "{:.2f}".format(self.account.income + first_value)
+        )
+        self.assertEqual(
+            str(account.balance), "{:.2f}".format(self.account.balance + first_value)
+        )
+
+        payload = {
+            "type": "ex",
+            "value": second_value,
+        }
+        update_url = reverse("transactions-detail", kwargs={"pk": response.json()["id"]})
+        response = self.client.patch(
+            update_url, data=payload, format="json", **self.header
+        )
+        account.refresh_from_db()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["description"], "Salary")
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 2)
+        self.assertEqual(str(account.income), "{:.2f}".format(self.account.income))
+        self.assertEqual(str(account.expense), "{:.2f}".format(-second_value))
+        self.assertEqual(
+            str(account.balance), "{:.2f}".format(self.account.balance - second_value)
+        )
+
     def test_create_and_delete_transaction(self):
         create_url = reverse("transactions-list")
         first_value = 5000

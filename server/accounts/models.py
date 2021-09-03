@@ -1,5 +1,4 @@
 from datetime import datetime
-from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -40,61 +39,6 @@ class Account(BaseModel):
 
     def __str__(self):
         return self.name
-
-    def update_values_from_new_income(self, value: Decimal):
-        self.income += value
-        self.balance += value
-
-    def update_values_from_new_expense(self, value: Decimal):
-        self.expense -= value
-        self.balance -= value
-
-    def manage_values_from_new_transaction(self, transaction_type: str, value: Decimal):
-        transaction_adapter = {
-            "in": self.update_values_from_new_income,
-            "ex": self.update_values_from_new_expense,
-        }
-        transaction_adapter[transaction_type](value)
-        self.last_update = datetime.now()
-        self.save()
-
-    def refund_income(self, value: Decimal):
-        self.income -= value
-        self.balance -= value
-
-    def refund_expense(self, value: Decimal):
-        self.expense += value
-        self.balance += value
-
-    def refund_values_from_deleted_transaction(
-        self, transaction_type: str, value: Decimal
-    ):
-        transaction_adapter = {
-            "in": self.refund_income,
-            "ex": self.refund_expense,
-        }
-        transaction_adapter[transaction_type](value)
-        self.last_update = datetime.now()
-        self.save()
-
-    def exchange_income(self, old_value: Decimal, new_value: Decimal):
-        self.refund_income(old_value)
-        self.update_values_from_new_income(new_value)
-
-    def exchange_expense(self, old_value: Decimal, new_value: Decimal):
-        self.refund_expense(old_value)
-        self.update_values_from_new_expense(new_value)
-
-    def exchange_values_from_updated_transaction(
-        self, transaction_type: str, old_value: Decimal, new_value: Decimal
-    ):
-        transaction_adapter = {
-            "in": self.exchange_income,
-            "ex": self.exchange_expense,
-        }
-        transaction_adapter[transaction_type](old_value, new_value)
-        self.last_update = datetime.now()
-        self.save()
 
     def delete(self, *args, **kwargs):
         self.is_active = False
