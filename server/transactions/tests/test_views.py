@@ -172,6 +172,38 @@ class TransactionTestCase(APITestCase):
             str(account.balance), "{:.2f}".format(self.account.balance + value)
         )
 
+    def test_create_transaction_equal_a_zero(self):
+        url = reverse("transactions-list")
+        payload = {
+            "account": self.account.id,
+            "type": "in",
+            "description": "Bonus",
+            "value": 0,
+            "date": "2021-08-31",
+            "category": self.category.id,
+        }
+
+        response = self.client.post(url, data=payload, format="json", **self.header)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("value", response.json())
+
+    def test_create_transaction_lower_then_zero(self):
+        url = reverse("transactions-list")
+        payload = {
+            "account": self.account.id,
+            "type": "in",
+            "description": "Bonus",
+            "value": -89.09,
+            "date": "2021-08-31",
+            "category": self.category.id,
+        }
+
+        response = self.client.post(url, data=payload, format="json", **self.header)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("value", response.json())
+
     def test_create_and_update_transaction(self):
         create_url = reverse("transactions-list")
         first_value = 5000
